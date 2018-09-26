@@ -14,10 +14,12 @@ let main argv =
     let binaryMessage = EncryptionUtils.toBinaryMessage extendedMessage
     printfn "Binary extended text: %A (%A)" binaryMessage binaryMessage.Length
     
-//    let binaryKey = EncryptionUtils.toBinaryMessage extendedMessage
-//    printfn "Binary extended text: %A (%A)" binaryMessage binaryMessage.Length
-    
-    let binaryMessageBlocks  = EncryptionUtils.extractMessageBinaryBlocks binaryMessage
+    let binaryMessageBlocks = EncryptionUtils.extractMessageBinaryBlocks binaryMessage
     printfn "Binary blocks: %A (%A)" binaryMessageBlocks binaryMessageBlocks.Length
     
+    let binaryKey = EncryptionUtils.toBinaryMessage key
+    printfn "Binary key: %A (%A)" binaryKey binaryKey.Length
+    
+    let initialKey = EncryptionUtils.extendKeyUnevenBits binaryKey
+    printfn "Initial (extended) key: %A (%A)" initialKey initialKey.Length
     0
