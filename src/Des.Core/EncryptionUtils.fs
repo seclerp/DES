@@ -24,11 +24,11 @@ module EncryptionUtils =
 
     let toBinaryString (text : ExtendedString) : BinaryString =
         text 
-        |> Seq.map (fun char -> formatBinaryString (Convert.ToString(int char, 2)) (SizeOfBlock / SizeOfChar))
+        |> Seq.map (fun char -> formatBinaryString (Convert.ToString(int char, 2)) SizeOfChar)
         |> Seq.reduce (+)
     
     let fromBinaryString (text : BinaryString) : ExtendedString =
-        extractBinaryBlocks text 8
+        extractBinaryBlocks text SizeOfChar
         |> Seq.map (fun block -> Convert.ToInt32(block, 2) |> char |> string)
         |> Seq.reduce (+)
 

@@ -56,6 +56,9 @@ module Encryptor =
         let initialKey =
             key
             |> EncryptionUtils.toBinaryString
+            |> Seq.take Constants.KeyLength 
+            |> Seq.map string
+            |> Seq.reduce (+)
             |> EncryptionUtils.extendKeyUnevenBits
 
         let mutable resultBlocks = Array.create<BinaryString> binaryMessageBlocks.Length ""
@@ -102,9 +105,15 @@ module Encryptor =
             |> Seq.map PermutationUtils.performInitialPermutation
             |> Seq.toArray
 
-        let initialKey =
+        let key56 = 
             key
             |> EncryptionUtils.toBinaryString
+            |> Seq.take Constants.KeyLength 
+            |> Seq.map string
+            |> Seq.reduce (+)
+            
+        let initialKey =
+            key56
             |> EncryptionUtils.extendKeyUnevenBits
             
         let mutable resultBlocks = Array.create<BinaryString> binaryMessageBlocks.Length ""
