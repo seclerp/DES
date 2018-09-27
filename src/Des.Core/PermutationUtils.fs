@@ -101,6 +101,7 @@ module PermutationUtils =
     |]
     
     let private shiftTable = [| 1; 1; 2; 2; 2; 2; 2; 2; 1; 2; 2; 2; 2; 2; 2; 1 |]
+    let private decryptShiftTable = [| 0; 1; 2; 2; 2; 2; 2; 2; 1; 2; 2; 2; 2; 2; 2; 1 |]
     
     let extractSValue iteration row column = 
         sTables.[iteration].[row].[column]
@@ -130,13 +131,13 @@ module PermutationUtils =
         let right = initialKeyPermutationTable.[initialKeyPermutationTable.Length / 2 ..]
         (left, right)
         
-    let private shift (input : 'T array) (amount : int) : 'T array =
+    let shift (input : 'T array) (amount : int) : 'T array =
         input
-        |> Array.permute (fun index -> if index >= 0 then index % input.Length else input.Length - index % input.Length)
+        |> Array.permute (fun index -> if index + amount >= 0 then (index + amount) % input.Length else input.Length + (index + amount) % input.Length)
 
     let shiftKeyPartsLeft (parts : int array) (iteration : int) : int array =
         shift parts -shiftTable.[iteration]
         
     let shiftKeyPartsRight (parts : int array) (iteration : int) : int array =
-        shift parts shiftTable.[iteration]
+        shift parts decryptShiftTable.[iteration]
         

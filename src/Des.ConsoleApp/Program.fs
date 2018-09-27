@@ -3,8 +3,8 @@ open Des.Core
 
 [<EntryPoint>]
 let main argv =
-    let key = "rootttt"
-    let inputMessage = "Hello World"
+    let key = "root"
+    let inputMessage = "Worl221312331232213213121231231"
     
     printfn "Plain text:                %s (%i)" inputMessage inputMessage.Length
     
@@ -13,18 +13,6 @@ let main argv =
     
     let binaryMessage = EncryptionUtils.toBinaryString extendedMessage
     printfn "Binary extended text:      %s (%i)" binaryMessage binaryMessage.Length
-    
-//    let fromBinaryMessage = EncryptionUtils.fromBinaryString binaryMessage
-//    printfn "fromBinaryMessage: %A (%A)" extendedMessage extendedMessage.Length
-//    
-//    let binaryMessageBlocks = EncryptionUtils.extractMessageBinaryBlocks binaryMessage
-//    printfn "Binary blocks: %A (%A)" binaryMessageBlocks binaryMessageBlocks.Length
-//    
-//    let binaryKey = EncryptionUtils.toBinaryMessage key
-//    printfn "Binary key: %A (%A)" binaryKey binaryKey.Length
-//    
-//    let initialKey = EncryptionUtils.extendKeyUnevenBits binaryKey
-//    printfn "Initial (extended) key: %A (%A)" initialKey initialKey.Length
 
     let encryptResult = Encryptor.encrypt inputMessage key
     printfn "Encoded string:            %s (%i)" encryptResult encryptResult.Length

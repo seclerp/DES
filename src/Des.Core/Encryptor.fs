@@ -30,9 +30,13 @@ module Encryptor =
     
     let private f (right : BinaryString) (key : BinaryString) =
         let expandedRight = e right
-        let bBlocks = EncryptionUtils.extractBinaryBlocks (xor expandedRight key) 6
+        let _xor = xor expandedRight key
+        let bBlocks = EncryptionUtils.extractBinaryBlocks (_xor) 6
         
-        s bBlocks |> Seq.reduce (+) |> PermutationUtils.performPermutation
+        let result = 
+            s bBlocks |> Seq.reduce (+) |> PermutationUtils.performPermutation
+            
+        result
         
     let private encodeRound (left : BinaryString) (right : BinaryString) (key : BinaryString) 
         : (BinaryString * BinaryString) =
@@ -61,7 +65,7 @@ module Encryptor =
             |> Seq.reduce (+)
             |> EncryptionUtils.extendKeyUnevenBits
 
-        let mutable resultBlocks = Array.create<BinaryString> binaryMessageBlocks.Length ""
+        let mutable resultBlocks = binaryMessageBlocks.[*]
         let mutable (keyLeft, keyRight) = PermutationUtils.getInitialKeyPermutationValues()
         
         [0..Constants.QuantityOfRounds - 1] 
@@ -80,7 +84,7 @@ module Encryptor =
                 // Get 48 bit key
                 let key48 = PermutationUtils.performEncodeKeyPermutation key56
                 
-                binaryMessageBlocks
+                resultBlocks
                 |> Seq.iteri (
                     fun i block -> 
                         let (l, r) = (
@@ -91,7 +95,6 @@ module Encryptor =
                         let (left, right) = encodeRound l r key48
                         resultBlocks.[i] <- left + right
                 )
-               
         )
         
         resultBlocks 
@@ -105,25 +108,22 @@ module Encryptor =
             |> Seq.map PermutationUtils.performInitialPermutation
             |> Seq.toArray
 
-        let key56 = 
+        let initialKey =
             key
             |> EncryptionUtils.toBinaryString
             |> Seq.take Constants.KeyLength 
             |> Seq.map string
             |> Seq.reduce (+)
-            
-        let initialKey =
-            key56
             |> EncryptionUtils.extendKeyUnevenBits
-            
-        let mutable resultBlocks = Array.create<BinaryString> binaryMessageBlocks.Length ""
+
+        let mutable resultBlocks = binaryMessageBlocks.[*]
         let mutable (keyLeft, keyRight) = PermutationUtils.getInitialKeyPermutationValues()
         
         [0..Constants.QuantityOfRounds - 1] 
         |> Seq.iter (
             fun i ->
-                keyLeft <- PermutationUtils.shiftKeyPartsLeft keyLeft i
-                keyRight <- PermutationUtils.shiftKeyPartsLeft keyRight i
+                keyLeft <- PermutationUtils.shiftKeyPartsRight keyLeft i
+                keyRight <- PermutationUtils.shiftKeyPartsRight keyRight i
                 
                 // 56 bit
                 let key56 = 
@@ -135,7 +135,7 @@ module Encryptor =
                 // Get 48 bit key
                 let key48 = PermutationUtils.performEncodeKeyPermutation key56
                 
-                binaryMessageBlocks
+                resultBlocks
                 |> Seq.iteri (
                     fun i block -> 
                         let (l, r) = (
@@ -143,10 +143,9 @@ module Encryptor =
                             block.[block.Length / 2..]
                         )
                         
-                        let (left, right) = encodeRound l r key48
+                        let (left, right) = decodeRound l r key48
                         resultBlocks.[i] <- left + right
                 )
-               
         )
         
         resultBlocks 
