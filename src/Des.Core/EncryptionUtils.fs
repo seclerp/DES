@@ -7,7 +7,7 @@ module EncryptionUtils =
 
     let formatBinaryString (str : BinaryString) (size : int) : BinaryString =
         let mutable mutableStr = str
-        while mutableStr.Length % size <> 0 do
+        while mutableStr.Length < size do
             mutableStr <- "0" + mutableStr
         mutableStr
 
