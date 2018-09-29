@@ -33,10 +33,7 @@ module Encryptor =
         let _xor = xor expandedRight key
         let bBlocks = EncryptionUtils.extractBinaryBlocks (_xor) 6
         
-        let result = 
-            s bBlocks |> Seq.reduce (+) |> PermutationUtils.performPermutation
-            
-        result
+        s bBlocks |> Seq.reduce (+) |> PermutationUtils.performPermutation
         
     let private encodeRound (left : BinaryString) (right : BinaryString) (key : BinaryString) 
         : (BinaryString * BinaryString) =
@@ -48,7 +45,7 @@ module Encryptor =
         let newLeft = xor right (f left key)
         (newLeft, left)
 
-    let encrypt (plainText : string) (key : string) : BinaryString =
+    let encrypt (plainText : string) (key : string) : (BinaryString * Entropy) =
         let binaryMessageBlocks =
             plainText 
             |> EncryptionUtils.extendText
@@ -63,6 +60,7 @@ module Encryptor =
             |> Seq.take Constants.KeyLength 
             |> Seq.map string
             |> Seq.reduce (+)
+            |> EncryptionUtils.validateKey
             |> EncryptionUtils.extendKeyUnevenBits
 
         let mutable resultBlocks = binaryMessageBlocks.[*]
@@ -97,9 +95,14 @@ module Encryptor =
                 )
         )
         
-        resultBlocks 
-        |> Seq.map (fun block -> block |> PermutationUtils.performReverseInitialPermutation)
-        |> Seq.reduce (+)
+        let permutedBlocks = 
+            resultBlocks 
+            |> Seq.map PermutationUtils.performReverseInitialPermutation
+
+        let cipher = permutedBlocks |> Seq.reduce (+)
+        let blocksEntropy = permutedBlocks |> Seq.map EncryptionUtils.computeEntropy
+            
+        (cipher, blocksEntropy)
 
     let decrypt (cipherText : BinaryString) (key : string) : BinaryString =
         let binaryMessageBlocks =
